@@ -1,4 +1,4 @@
-name: automacao_efss
+name: automacao_efs
 run-name: EFS
 on:
   push:
