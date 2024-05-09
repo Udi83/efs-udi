@@ -1,5 +1,5 @@
-name: automacao_efs
-run-name: EFS
+name: senai_automacao_efs
+run-name: ${{ github.actor }} Pipeline deploy
 on:
   push:
     branches:
@@ -9,30 +9,29 @@ on:
       - .github/workflows/main.yml
 jobs:
   efs-senai:
-    runs-on: ubuntu:latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: action/checkout@v4
+        uses: actions/checkout@v4
 
-      - name: Instalação do SSH
+      - name: Instalação das dependências SSH
         run: sudo apt-get install -y openssh-client
 
-      - name: Verificação da chave PEM
+      - name: Verificar caminho da chave .pem
         run: echo "$KEY_PATH"
         env:
           KEY_PATH: ${{ secrets.CHAVE_PEM }}
 
       - name: Adicionar host EC2 ao known_hosts
         run: |
-          ssh-keygen -t rsa -b 4096 -f ~/ .ssh/id_rsa -N ''
-          ssh-keyscan -H 54.174.184.82 >> ~/ .ssh/know_hosts
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ''
+          ssh-keyscan -H 54.174.184.82 >> ~/.ssh/known_hosts
 
-      - name: Envio das imagens SCP
-        if: alwys()
+      - name: Envio do arquivo via SCP
+        if: always()
         run: |
           echo "$KEY_PATH" > ./chave.pem
           chmod 600 ./chave.pem
-          scp -i ./chave.pem images/*.* ec2-user@54.174.184.82:/home/ec2-user/efs
+          scp -i ./chave.pem images/*.* ec2-user@54.174.184.82:/home/ec2-user/efs/
         env:
           KEY_PATH: ${{ secrets.CHAVE_PEM }}
-      
